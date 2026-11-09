@@ -1,0 +1,39 @@
+services:
+  resolver:
+    build: .
+    image: dns-lab:latest
+    container_name: resolver
+    init: true
+    cap_add:
+      - NET_ADMIN
+    entrypoint: ["/entrypoint-resolver.sh"]
+    command: ["sleep", "infinity"]
+    volumes:
+      - ./captures:/captures
+    networks:
+      labnet:
+        ipv4_address: 10.10.0.10
+
+  client:
+    build: .
+    image: dns-lab:latest
+    container_name: client
+    init: true
+    cap_add:
+      - NET_ADMIN
+    dns:
+      - 10.10.0.10
+    entrypoint: ["/entrypoint-client.sh"]
+    command: ["sleep", "infinity"]
+    volumes:
+      - ./captures:/captures
+    networks:
+      labnet:
+        ipv4_address: 10.10.0.20
+
+networks:
+  labnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.10.0.0/24
